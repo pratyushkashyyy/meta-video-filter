@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -9,6 +8,8 @@ from typing import Callable, Iterable
 
 import cv2
 import numpy as np
+
+from .dependencies import find_bundled_or_path_executable
 
 ProgressCallback = Callable[[str], None]
 CancelCallback = Callable[[], bool]
@@ -147,7 +148,7 @@ def get_audio_features(
     sample_rate: int = 22050,
 ) -> tuple[float, float]:
     """Return RMS loudness and peak/RMS ratio using ffmpeg-decoded mono PCM."""
-    ffmpeg = shutil.which("ffmpeg")
+    ffmpeg = find_bundled_or_path_executable("ffmpeg", "ffmpeg.exe")
     if not ffmpeg:
         if log:
             log("Audio analysis skipped: ffmpeg was not found on PATH.")

@@ -10,6 +10,10 @@ hiddenimports += collect_submodules("ultralytics")
 
 datas = []
 datas += collect_data_files("ultralytics")
+datas += [
+    ("meta_video_filter/assets/app_icon.png", "meta_video_filter/assets"),
+    ("meta_video_filter/assets/app_icon.ico", "meta_video_filter/assets"),
+]
 
 a = Analysis(
     ["build_entry.py"],

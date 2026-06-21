@@ -4,7 +4,7 @@ Build on the same OS you want to ship. Use Windows to create a Windows app and L
 
 ## 1. Prepare
 
-Use Python 3.10 for Linux installer parity. The app code supports Python 3.10 through 3.12, but the Linux production installer intentionally forces Python 3.10.
+Use Python 3.10 for release builds. The app code supports Python 3.10 through 3.12, but the production scripts intentionally default to Python 3.10.
 
 ```bash
 python -m venv venv
@@ -16,7 +16,7 @@ pip install -r requirements-dev.txt
 On Windows PowerShell:
 
 ```powershell
-python -m venv venv
+py -3.10 -m venv venv
 .\venv\Scripts\Activate.ps1
 python -m pip install -U pip setuptools wheel
 python -m pip install -r requirements-dev.txt
@@ -57,10 +57,20 @@ On Windows:
 
 ## 4. Windows Installer EXE
 
-Install Inno Setup 6 on Windows:
+Install prerequisites on Windows:
+
+```powershell
+winget install Python.Python.3.10
+winget install JRSoftware.InnoSetup
+winget install Gyan.FFmpeg
+```
+
+If you prefer manual downloads:
 
 ```text
+https://www.python.org/downloads/release/python-310/
 https://jrsoftware.org/isinfo.php
+https://www.gyan.dev/ffmpeg/builds/
 ```
 
 Then run:
@@ -72,9 +82,12 @@ Then run:
 This will:
 
 - create/use `venv`
+- use Python 3.10 by default through the `py -3.10` launcher
+- stop if an existing `venv` was created with a different Python version
 - install build dependencies
 - run tests
 - build `dist\MetaVideoFilter\MetaVideoFilter.exe`
+- copy `ffmpeg.exe` into the app folder
 - build the installer
 
 The installer will be written to:
@@ -87,6 +100,24 @@ If Inno Setup is installed somewhere custom:
 
 ```powershell
 .\scripts\build_windows_installer.ps1 -InnoSetupCompiler "C:\Path\To\ISCC.exe"
+```
+
+If FFmpeg is installed somewhere custom:
+
+```powershell
+.\scripts\build_windows_installer.ps1 -FfmpegPath "C:\ffmpeg\bin\ffmpeg.exe"
+```
+
+If you do not use the Windows `py` launcher:
+
+```powershell
+.\scripts\build_windows_installer.ps1 -Python "C:\Path\To\Python310\python.exe" -PythonArgs @()
+```
+
+If you already have a `venv` from another Python version, delete it first:
+
+```powershell
+Remove-Item -Recurse -Force .\venv
 ```
 
 ## 5. Linux Installer

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable
 
 from .config import ASPECT_RATIOS, AspectRatioPreset
+from .dependencies import find_bundled_or_path_executable
 
 if TYPE_CHECKING:
     from .scoring import PersonDetector
@@ -24,7 +24,7 @@ class CropBox:
 
 
 def require_ffmpeg() -> str:
-    ffmpeg = shutil.which("ffmpeg")
+    ffmpeg = find_bundled_or_path_executable("ffmpeg", "ffmpeg.exe")
     if not ffmpeg:
         raise RuntimeError("ffmpeg was not found on PATH. Install ffmpeg before exporting videos.")
     return ffmpeg
