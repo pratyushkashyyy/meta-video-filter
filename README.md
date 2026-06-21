@@ -82,12 +82,11 @@ pytest
 
 See [BUILD.md](BUILD.md) for PyInstaller packaging instructions.
 
-Windows installer support is included through Inno Setup. On Windows, install Python 3.10, Inno Setup 6, and FFmpeg first:
+Windows installer support is included through Inno Setup. On Windows, install Python 3.10 and Inno Setup 6 first:
 
 ```powershell
 winget install Python.Python.3.10
 winget install JRSoftware.InnoSetup
-winget install Gyan.FFmpeg
 ```
 
 Then build:
@@ -95,6 +94,8 @@ Then build:
 ```powershell
 .\scripts\build_windows_installer.ps1
 ```
+
+The build script installs FFmpeg with `winget` if missing, bundles `ffmpeg.exe` beside the app, and PyInstaller embeds Python in the final `.exe`.
 
 Linux installer support:
 

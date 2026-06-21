@@ -62,7 +62,6 @@ Install prerequisites on Windows:
 ```powershell
 winget install Python.Python.3.10
 winget install JRSoftware.InnoSetup
-winget install Gyan.FFmpeg
 ```
 
 If you prefer manual downloads:
@@ -70,7 +69,6 @@ If you prefer manual downloads:
 ```text
 https://www.python.org/downloads/release/python-310/
 https://jrsoftware.org/isinfo.php
-https://www.gyan.dev/ffmpeg/builds/
 ```
 
 Then run:
@@ -87,7 +85,8 @@ This will:
 - install build dependencies
 - run tests
 - build `dist\MetaVideoFilter\MetaVideoFilter.exe`
-- copy `ffmpeg.exe` into the app folder
+- install FFmpeg with `winget` if missing
+- copy `ffmpeg.exe` into the app folder so the installed app can use it by itself
 - build the installer
 
 The installer will be written to:
@@ -107,6 +106,8 @@ If FFmpeg is installed somewhere custom:
 ```powershell
 .\scripts\build_windows_installer.ps1 -FfmpegPath "C:\ffmpeg\bin\ffmpeg.exe"
 ```
+
+The final Windows installer does not install system Python. PyInstaller embeds the Python runtime inside `MetaVideoFilter.exe`, and the build script bundles `ffmpeg.exe` beside the app, so the installed app can run on its own.
 
 If you do not use the Windows `py` launcher:
 
@@ -142,9 +143,9 @@ chmod +x release/MetaVideoFilter-linux-x86_64.run
 ./release/MetaVideoFilter-linux-x86_64.run
 ```
 
-The Linux installer is intentionally small. It embeds the app source, requires internet access during install, forces `python3.10`, creates a private virtual environment, installs `requirements.txt`, installs the app into that environment, creates a desktop launcher entry, and checks for `ffmpeg`.
+The Linux installer is intentionally small. It embeds the app source, requires internet access during install, installs missing system tools where possible, forces `python3.10`, creates a private virtual environment, installs `requirements.txt`, installs the app into that environment, creates a desktop launcher entry, and checks for `ffmpeg`.
 
-If missing, the installer can install:
+If missing, the installer automatically tries to install:
 
 - `python3.10` on supported apt/dnf/zypper systems
 - `ffmpeg` on supported apt/dnf/zypper/pacman systems

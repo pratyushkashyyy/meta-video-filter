@@ -53,6 +53,23 @@ function Resolve-Ffmpeg {
     return $null
 }
 
+function Install-FfmpegWithWinget {
+    $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
+    if (-not $winget) {
+        return
+    }
+
+    Write-Host "ffmpeg.exe was not found. Installing FFmpeg with winget..."
+    Invoke-Native $winget.Source @(
+        "install",
+        "--id", "Gyan.FFmpeg",
+        "--exact",
+        "--silent",
+        "--accept-package-agreements",
+        "--accept-source-agreements"
+    )
+}
+
 if (-not (Test-Path "venv")) {
     $VenvArgs = @($PythonArgs) + @("-m", "venv", "venv")
     Invoke-Native $Python $VenvArgs
@@ -76,6 +93,11 @@ if (-not (Test-Path $InnoSetupCompiler)) {
 New-Item -ItemType Directory -Force -Path release | Out-Null
 
 $ResolvedFfmpeg = Resolve-Ffmpeg -ExplicitPath $FfmpegPath
+if (-not $ResolvedFfmpeg -and -not $FfmpegPath) {
+    Install-FfmpegWithWinget
+    $ResolvedFfmpeg = Resolve-Ffmpeg -ExplicitPath ""
+}
+
 if (-not $ResolvedFfmpeg) {
     throw "ffmpeg.exe was not found. Install FFmpeg with 'winget install Gyan.FFmpeg' or pass -FfmpegPath 'C:\ffmpeg\bin\ffmpeg.exe'."
 }

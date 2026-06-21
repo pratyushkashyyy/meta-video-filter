@@ -37,7 +37,7 @@ Usage:
 
 Requires:
   Internet access during install
-  Python 3.10
+  sudo access for missing system packages
 
 Installs to:
   $INSTALL_DIR
@@ -46,21 +46,6 @@ Creates:
   $LAUNCHER
   $DESKTOP_FILE
 USAGE
-}
-
-confirm() {
-    local prompt="$1"
-    local answer
-
-    if [[ ! -t 0 ]]; then
-        return 1
-    fi
-
-    read -r -p "$prompt [Y/n] " answer
-    case "${answer:-Y}" in
-        y|Y|yes|YES) return 0 ;;
-        *) return 1 ;;
-    esac
 }
 
 install_with_package_manager() {
@@ -84,10 +69,7 @@ install_python310() {
     fi
 
     echo "Python 3.10 is required and was not found."
-    if ! confirm "Install Python 3.10 with your system package manager?"; then
-        echo "Install python3.10 manually, then run this installer again."
-        exit 1
-    fi
+    echo "Installing Python 3.10 with your system package manager..."
 
     if command -v apt-get >/dev/null 2>&1; then
         sudo apt-get update
@@ -114,10 +96,7 @@ install_ffmpeg() {
     fi
 
     echo "ffmpeg is required for audio analysis and video export."
-    if ! confirm "Install ffmpeg with your system package manager?"; then
-        echo "Install ffmpeg manually, then run this installer again."
-        exit 1
-    fi
+    echo "Installing ffmpeg with your system package manager..."
 
     if ! install_with_package_manager ffmpeg; then
         echo "Could not automatically install ffmpeg."
@@ -127,9 +106,7 @@ install_ffmpeg() {
 }
 
 install_linux_runtime_libs() {
-    if ! confirm "Install common Qt/OpenCV runtime libraries if available?"; then
-        return 0
-    fi
+    echo "Installing common Qt/OpenCV runtime libraries when available..."
 
     if command -v apt-get >/dev/null 2>&1; then
         sudo apt-get update
