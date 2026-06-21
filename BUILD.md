@@ -4,7 +4,7 @@ Build on the same OS you want to ship. Use Windows to create a Windows app and L
 
 ## 1. Prepare
 
-Use Python 3.10, 3.11, or 3.12.
+Use Python 3.10 for Linux installer parity. The app code supports Python 3.10 through 3.12, but the Linux production installer intentionally forces Python 3.10.
 
 ```bash
 python -m venv venv
@@ -91,7 +91,7 @@ If Inno Setup is installed somewhere custom:
 
 ## 5. Linux Installer
 
-After building with PyInstaller on Linux:
+Build the lightweight Linux installer:
 
 ```bash
 ./scripts/build_linux_installer.sh
@@ -100,7 +100,7 @@ After building with PyInstaller on Linux:
 This creates:
 
 ```text
-release/MetaVideoFilter-linux-x86_64.tar.xz
+release/MetaVideoFilter-linux-source.tar.gz
 release/MetaVideoFilter-linux-x86_64.run
 ```
 
@@ -111,7 +111,13 @@ chmod +x release/MetaVideoFilter-linux-x86_64.run
 ./release/MetaVideoFilter-linux-x86_64.run
 ```
 
-The Linux installer bundles the Python app dependencies from `requirements.txt`, creates a desktop launcher entry, and checks for `ffmpeg`. If `ffmpeg` is missing, it can install it with `apt-get`, `dnf`, `pacman`, or `zypper`.
+The Linux installer is intentionally small. It embeds the app source, requires internet access during install, forces `python3.10`, creates a private virtual environment, installs `requirements.txt`, installs the app into that environment, creates a desktop launcher entry, and checks for `ffmpeg`.
+
+If missing, the installer can install:
+
+- `python3.10` on supported apt/dnf/zypper systems
+- `ffmpeg` on supported apt/dnf/zypper/pacman systems
+- common Qt/OpenCV runtime libraries on supported systems
 
 Run:
 
@@ -127,7 +133,7 @@ Uninstall:
 
 ## Notes
 
-- The app uses `ffmpeg` for audio analysis and exports. The packaged app bundles Python dependencies, while `ffmpeg` is installed as a native system dependency.
+- The app uses `ffmpeg` for audio analysis and exports. The Linux installer installs Python dependencies at install time instead of bundling them, so the release stays small.
 - YOLO may download `yolov8n.pt` the first time it runs if the model file is not already present.
-- Build artifacts can be large because Ultralytics depends on PyTorch.
+- PyInstaller builds can be large because Ultralytics depends on PyTorch. Prefer the lightweight Linux installer unless you specifically need offline installation.
 - Ultralytics is AGPL-3.0 licensed. Review license obligations before distributing outside your own machine or organization.
