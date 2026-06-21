@@ -22,7 +22,7 @@ python -m pip install -U pip setuptools wheel
 python -m pip install -r requirements-dev.txt
 ```
 
-Install `ffmpeg` separately and make sure it is available on `PATH`.
+Install `ffmpeg` separately and make sure it is available on `PATH` for development runs.
 
 ## 2. Verify
 
@@ -100,7 +100,7 @@ After building with PyInstaller on Linux:
 This creates:
 
 ```text
-release/MetaVideoFilter-linux-x86_64.tar.gz
+release/MetaVideoFilter-linux-x86_64.tar.xz
 release/MetaVideoFilter-linux-x86_64.run
 ```
 
@@ -110,6 +110,8 @@ Install:
 chmod +x release/MetaVideoFilter-linux-x86_64.run
 ./release/MetaVideoFilter-linux-x86_64.run
 ```
+
+The Linux installer bundles the Python app dependencies from `requirements.txt`, creates a desktop launcher entry, and checks for `ffmpeg`. If `ffmpeg` is missing, it can install it with `apt-get`, `dnf`, `pacman`, or `zypper`.
 
 Run:
 
@@ -125,7 +127,7 @@ Uninstall:
 
 ## Notes
 
-- The app uses `ffmpeg` for audio analysis and exports. The packaged app expects `ffmpeg` on `PATH`.
+- The app uses `ffmpeg` for audio analysis and exports. The packaged app bundles Python dependencies, while `ffmpeg` is installed as a native system dependency.
 - YOLO may download `yolov8n.pt` the first time it runs if the model file is not already present.
 - Build artifacts can be large because Ultralytics depends on PyTorch.
 - Ultralytics is AGPL-3.0 licensed. Review license obligations before distributing outside your own machine or organization.
