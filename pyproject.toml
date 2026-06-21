@@ -1,0 +1,20 @@
+[project]
+name = "meta-video-filter"
+version = "0.1.0"
+description = "Desktop app for scoring videos and exporting Meta ad aspect ratios."
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "numpy==1.26.4",
+    "opencv-python==4.10.0.84",
+    "ultralytics==8.2.103",
+    "PySide6==6.7.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.3"]
+
+[project.scripts]
+meta-video-filter = "meta_video_filter.app:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

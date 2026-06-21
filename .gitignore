@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+venv/
+.venv/
+
+build/
+dist/
+release/
+*.spec~
+
+Meta_Ad_Output/
+yolov8n.pt
