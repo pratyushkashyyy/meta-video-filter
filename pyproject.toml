@@ -16,5 +16,8 @@ dev = ["pytest==8.3.3"]
 [project.scripts]
 meta-video-filter = "meta_video_filter.app:main"
 
+[tool.setuptools.packages.find]
+include = ["meta_video_filter*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
