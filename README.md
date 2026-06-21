@@ -87,3 +87,10 @@ Windows installer support is included through Inno Setup:
 ```powershell
 .\scripts\build_windows_installer.ps1
 ```
+
+Linux installer support:
+
+```bash
+./scripts/build_linux_installer.sh
+./release/MetaVideoFilter-linux-x86_64.run
+```

@@ -89,6 +89,40 @@ If Inno Setup is installed somewhere custom:
 .\scripts\build_windows_installer.ps1 -InnoSetupCompiler "C:\Path\To\ISCC.exe"
 ```
 
+## 5. Linux Installer
+
+After building with PyInstaller on Linux:
+
+```bash
+./scripts/build_linux_installer.sh
+```
+
+This creates:
+
+```text
+release/MetaVideoFilter-linux-x86_64.tar.gz
+release/MetaVideoFilter-linux-x86_64.run
+```
+
+Install:
+
+```bash
+chmod +x release/MetaVideoFilter-linux-x86_64.run
+./release/MetaVideoFilter-linux-x86_64.run
+```
+
+Run:
+
+```bash
+meta-video-filter
+```
+
+Uninstall:
+
+```bash
+./release/MetaVideoFilter-linux-x86_64.run --uninstall
+```
+
 ## Notes
 
 - The app uses `ffmpeg` for audio analysis and exports. The packaged app expects `ffmpeg` on `PATH`.
