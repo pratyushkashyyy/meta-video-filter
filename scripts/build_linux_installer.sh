@@ -24,6 +24,7 @@ BIN_DIR="$HOME/.local/bin"
 DESKTOP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
 DESKTOP_FILE="$DESKTOP_DIR/${APP_ID}.desktop"
 LAUNCHER="$BIN_DIR/meta-video-filter"
+ICON_FILE="$SOURCE_DIR/meta_video_filter/assets/app_icon.png"
 PYTHON_BIN="python3.10"
 
 usage() {
@@ -200,6 +201,7 @@ Type=Application
 Name=Meta Video Filter
 Comment=Rank, crop, and export Meta ad videos
 Exec=$LAUNCHER
+Icon=$ICON_FILE
 Terminal=false
 Categories=AudioVideo;Video;Utility;
 StartupNotify=true

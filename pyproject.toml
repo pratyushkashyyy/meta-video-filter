@@ -19,5 +19,8 @@ meta-video-filter = "meta_video_filter.app:main"
 [tool.setuptools.packages.find]
 include = ["meta_video_filter*"]
 
+[tool.setuptools.package-data]
+meta_video_filter = ["assets/app_icon.png", "assets/app_icon.ico"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

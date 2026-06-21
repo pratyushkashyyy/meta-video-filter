@@ -6,7 +6,7 @@ import traceback
 from pathlib import Path
 
 from PySide6.QtCore import QObject, Qt, QThread, Signal, Slot
-from PySide6.QtGui import QColor, QFont
+from PySide6.QtGui import QColor, QFont, QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
@@ -36,6 +36,9 @@ from PySide6.QtWidgets import (
 
 from .config import ASPECT_RATIOS, DEFAULT_RATIOS
 from .pipeline import ProcessingCancelled, run_pipeline
+
+
+APP_ICON_PATH = Path(__file__).with_name("assets") / "app_icon.png"
 
 
 LIGHT_STYLESHEET = """
@@ -351,6 +354,8 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Meta Video Filter")
+        if APP_ICON_PATH.exists():
+            self.setWindowIcon(QIcon(str(APP_ICON_PATH)))
         self.resize(1320, 820)
         self.setMinimumSize(1100, 720)
         self.thread: QThread | None = None
@@ -682,6 +687,8 @@ class MainWindow(QMainWindow):
 def main() -> int:
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
+    if APP_ICON_PATH.exists():
+        app.setWindowIcon(QIcon(str(APP_ICON_PATH)))
     app.setStyleSheet(LIGHT_STYLESHEET)
     window = MainWindow()
     window.show()
