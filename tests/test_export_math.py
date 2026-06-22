@@ -21,8 +21,8 @@ def test_choose_crop_box_portrait_to_square():
 
 
 def test_build_crop_filter():
-    crop = choose_crop_box(1920, 1080, 1080, 1080)
-    assert build_crop_filter(crop, ASPECT_RATIOS["1:1"]) == "crop=1080:1080:420:0,scale=1080:1080:flags=lanczos"
+    crop = choose_crop_box(1920, 1080, 1080, 1920)
+    assert build_crop_filter(crop, ASPECT_RATIOS["9:16"]) == "crop=608:1080:656:0,scale=1080:1920:flags=lanczos"
 
 
 def test_build_export_command_uses_nvenc_quality_flags():

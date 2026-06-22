@@ -10,7 +10,6 @@ from PySide6.QtGui import QColor, QFont, QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
-    QCheckBox,
     QComboBox,
     QFileDialog,
     QFrame,
@@ -25,7 +24,6 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QProgressBar,
     QPushButton,
-    QSizePolicy,
     QSplitter,
     QTableWidget,
     QTableWidgetItem,
@@ -34,7 +32,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .config import ASPECT_RATIOS, DEFAULT_RATIOS
+from .config import DEFAULT_RATIOS
 from .pipeline import ProcessingCancelled, run_pipeline
 
 
@@ -445,16 +443,16 @@ class MainWindow(QMainWindow):
         folder_layout.addWidget(self.output_label)
         layout.addWidget(folder_box)
 
-        ratio_box = QGroupBox("Ratios")
+        ratio_box = QGroupBox("Export format")
         ratio_layout = QVBoxLayout(ratio_box)
-        ratio_layout.setSpacing(8)
-        self.ratio_checks: dict[str, QCheckBox] = {}
-        for key, preset in ASPECT_RATIOS.items():
-            checkbox = QCheckBox(preset.label)
-            checkbox.setChecked(key in DEFAULT_RATIOS)
-            checkbox.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            self.ratio_checks[key] = checkbox
-            ratio_layout.addWidget(checkbox)
+        ratio_layout.setSpacing(4)
+        self.fixed_ratio_label = QLabel("9:16 Reels / Stories")
+        self.fixed_ratio_label.setObjectName("sectionTitle")
+        ratio_detail = QLabel("Fixed export: 1080 x 1920 MP4")
+        ratio_detail.setObjectName("muted")
+        ratio_detail.setWordWrap(True)
+        ratio_layout.addWidget(self.fixed_ratio_label)
+        ratio_layout.addWidget(ratio_detail)
         layout.addWidget(ratio_box)
 
         hardware_box = QGroupBox("Performance")
@@ -584,17 +582,13 @@ class MainWindow(QMainWindow):
     @Slot()
     def start_processing(self) -> None:
         input_folder = self.input_edit.text().strip()
-        ratios = tuple(key for key, checkbox in self.ratio_checks.items() if checkbox.isChecked())
+        ratios = DEFAULT_RATIOS
         yolo_device = str(self.yolo_device_combo.currentData())
         video_encoder = str(self.video_encoder_combo.currentData())
 
         if not input_folder:
             QMessageBox.warning(self, "Missing folder", "Select an input folder.")
             return
-        if not ratios:
-            QMessageBox.warning(self, "Missing ratios", "Select at least one export ratio.")
-            return
-
         self.result_count = 0
         self.table.setRowCount(0)
         self.log_view.clear()
@@ -679,7 +673,6 @@ class MainWindow(QMainWindow):
             self.yolo_device_combo,
             self.video_encoder_combo,
             self.theme_combo,
-            *self.ratio_checks.values(),
         ]:
             widget.setEnabled(not running)
 

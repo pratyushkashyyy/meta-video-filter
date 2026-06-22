@@ -1,6 +1,6 @@
 # Meta Video Filter
 
-Cross-platform Python Qt desktop app for ranking short ad videos and exporting Group A/B picks to Meta-friendly aspect ratios.
+Cross-platform Python Qt desktop app for ranking short ad videos and exporting Group A/B picks to a fixed Meta Reels format.
 
 ## Setup
 
@@ -61,7 +61,7 @@ python bestpicket.py /path/to/videos --yolo-device cpu --video-encoder h264_nven
 python -m meta_video_filter
 ```
 
-The app lets you choose an input folder and export ratios. It writes everything inside `Meta_Ad_Output` in the selected input folder: CSV report, thumbnails, Group A/B folders, a later folder, and optimized exports for the selected ratios.
+The app lets you choose an input folder and writes everything inside `Meta_Ad_Output` in the selected input folder: CSV report, thumbnails, Group A/B folders, a later folder, and optimized `9:16` Reels exports at `1080x1920`.
 
 ## Legacy CLI
 
