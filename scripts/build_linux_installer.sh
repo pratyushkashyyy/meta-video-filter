@@ -168,6 +168,10 @@ tail -n +"$ARCHIVE_LINE" "$0" | tar -xz -C "$INSTALL_DIR"
 
 cat > "$LAUNCHER" <<LAUNCH
 #!/usr/bin/env bash
+if [ "\${XDG_SESSION_TYPE:-}" = "wayland" ] || [ -n "\${WAYLAND_DISPLAY:-}" ]; then
+    export QT_QPA_PLATFORM="\${QT_QPA_PLATFORM:-xcb}"
+fi
+export QT_SCALE_FACTOR_ROUNDING_POLICY="\${QT_SCALE_FACTOR_ROUNDING_POLICY:-Round}"
 exec "$VENV_DIR/bin/python" -m meta_video_filter "\$@"
 LAUNCH
 chmod +x "$LAUNCHER"

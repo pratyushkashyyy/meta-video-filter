@@ -1,9 +1,27 @@
 from __future__ import annotations
 
+import os
+import platform
 import sys
 import threading
 import traceback
 from pathlib import Path
+
+
+def configure_qt_environment() -> None:
+    """Prefer the stable X11 Qt backend on Linux Wayland sessions."""
+    if platform.system() != "Linux":
+        return
+
+    session_type = os.getenv("XDG_SESSION_TYPE", "").lower()
+    wayland_display = os.getenv("WAYLAND_DISPLAY")
+    if (session_type == "wayland" or wayland_display) and "QT_QPA_PLATFORM" not in os.environ:
+        os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+    os.environ.setdefault("QT_SCALE_FACTOR_ROUNDING_POLICY", "Round")
+
+
+configure_qt_environment()
 
 from PySide6.QtCore import QObject, Qt, QThread, Signal, Slot
 from PySide6.QtGui import QColor, QFont, QIcon
