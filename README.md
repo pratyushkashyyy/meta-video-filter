@@ -61,7 +61,9 @@ python bestpicket.py /path/to/videos --yolo-device cpu --video-encoder h264_nven
 python -m meta_video_filter
 ```
 
-The app lets you choose an input folder and writes everything inside `Meta_Ad_Output` in the selected input folder: CSV report, thumbnails, Group A/B folders, a later folder, and optimized `9:16` Reels exports at `1080x1920`.
+The app lets you choose an input folder and writes everything inside `Meta_Ad_Output` in the selected input folder: CSV report, thumbnails, configurable group folders, and optimized `9:16` Reels exports at `1080x1920`.
+
+By default, the app creates 2 groups with 10 exported videos in each group. Exports are numbered inside each group ratio folder, such as `Group_A/9x16/1.mp4`, while `ad_scores.csv` keeps the original filename and export mapping.
 
 ## Legacy CLI
 
@@ -69,6 +71,12 @@ The original `bestpicket.py` entrypoint now accepts an input folder instead of a
 
 ```bash
 python bestpicket.py /path/to/videos
+```
+
+Custom grouping is available from the CLI too:
+
+```bash
+python bestpicket.py /path/to/videos --groups 3 --videos-per-group 12
 ```
 
 ## Test

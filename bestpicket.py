@@ -5,6 +5,12 @@ import threading
 from pathlib import Path
 
 from meta_video_filter.config import DEFAULT_RATIOS
+from meta_video_filter.distribution import (
+    MAX_GROUP_COUNT,
+    MAX_VIDEOS_PER_GROUP,
+    MIN_GROUP_COUNT,
+    MIN_VIDEOS_PER_GROUP,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -15,7 +21,23 @@ def parse_args() -> argparse.Namespace:
         nargs="+",
         default=list(DEFAULT_RATIOS),
         choices=["9:16", "1:1", "4:5"],
-        help="Aspect ratios to export for Group A/B videos.",
+        help="Aspect ratios to export for selected group videos.",
+    )
+    parser.add_argument(
+        "--groups",
+        type=int,
+        default=2,
+        choices=range(MIN_GROUP_COUNT, MAX_GROUP_COUNT + 1),
+        metavar=f"{MIN_GROUP_COUNT}-{MAX_GROUP_COUNT}",
+        help="Number of ranked output groups to create.",
+    )
+    parser.add_argument(
+        "--videos-per-group",
+        type=int,
+        default=10,
+        choices=range(MIN_VIDEOS_PER_GROUP, MAX_VIDEOS_PER_GROUP + 1),
+        metavar=f"{MIN_VIDEOS_PER_GROUP}-{MAX_VIDEOS_PER_GROUP}",
+        help="Maximum number of exported videos in each group.",
     )
     parser.add_argument(
         "--yolo-device",
@@ -45,6 +67,8 @@ def main() -> int:
             args.ratios,
             yolo_device=args.yolo_device,
             video_encoder=args.video_encoder,
+            group_count=args.groups,
+            videos_per_group=args.videos_per_group,
             log=print,
             progress=lambda done, total: print(f"Progress: {done}/{total}"),
             cancel_event=cancel_event,

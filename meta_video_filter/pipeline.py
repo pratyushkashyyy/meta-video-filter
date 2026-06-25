@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import csv
-import shutil
 import threading
 from pathlib import Path
 from typing import Callable, Iterable
 
 from .config import ASPECT_RATIOS, VIDEO_EXTENSIONS
-from .distribution import VideoRow, distribute_videos
+from .distribution import VideoRow, distribute_videos, group_name, validate_group_settings
 from .export import export_video
 from .scoring import PersonDetector, iter_video_files, save_thumbnail, score_video
 
@@ -24,17 +23,12 @@ def _cancelled(cancel_event: threading.Event | None) -> bool:
     return bool(cancel_event and cancel_event.is_set())
 
 
-def _copy_group_videos(input_folder: Path, group_rows: list[VideoRow], group_folder: Path) -> None:
-    group_folder.mkdir(parents=True, exist_ok=True)
-    for row in group_rows:
-        source = input_folder / str(row["file"])
-        if source.exists():
-            shutil.copy2(source, group_folder / str(row["file"]))
-
-
 def _write_report(path: Path, rows: list[VideoRow]) -> None:
     preferred_fields = [
         "file",
+        "group",
+        "export_index",
+        "export_file",
         "final_score",
         "hook_motion",
         "motion_avg",
@@ -45,8 +39,6 @@ def _write_report(path: Path, rows: list[VideoRow]) -> None:
         "sharpness",
         "audio_rms",
         "audio_spike",
-        "static_intro_penalty",
-        "group",
         "error",
     ]
     extra_fields = sorted({key for row in rows for key in row if key not in preferred_fields})
@@ -63,6 +55,8 @@ def run_pipeline(
     ratio_keys: Iterable[str],
     yolo_device: str = "auto",
     video_encoder: str = "auto",
+    group_count: int = 2,
+    videos_per_group: int = 10,
     log: LogCallback | None = None,
     progress: ProgressCallback | None = None,
     result: ResultCallback | None = None,
@@ -74,6 +68,7 @@ def run_pipeline(
     for ratio_key in ratio_keys:
         if ratio_key not in ASPECT_RATIOS:
             raise ValueError(f"Unsupported ratio: {ratio_key}")
+    validate_group_settings(group_count, videos_per_group)
 
     if not input_folder.exists():
         raise FileNotFoundError(f"Input folder does not exist: {input_folder}")
@@ -89,6 +84,7 @@ def run_pipeline(
 
     if log:
         log(f"Scanning {len(files)} videos")
+        log(f"Grouping: {group_count} groups x {videos_per_group} videos")
         log(f"YOLO device: {detector.resolved_device}")
         log(f"Video export encoder request: {video_encoder}")
 
@@ -129,39 +125,36 @@ def run_pipeline(
     if not scored_rows:
         raise RuntimeError("No videos could be scored.")
 
-    group_a, group_b, later = distribute_videos(scored_rows)
-    report_rows = group_a + group_b + later + error_rows
+    groups, later = distribute_videos(scored_rows, group_count=group_count, videos_per_group=videos_per_group)
+    selected_rows = [row for group_rows in groups for row in group_rows]
+    report_rows = selected_rows + later + error_rows
     _write_report(output_folder / "ad_scores.csv", report_rows)
     if result:
         for row in report_rows:
             result(row)
 
     group_folders = {
-        "Group_A": output_folder / "Group_A",
-        "Group_B": output_folder / "Group_B",
-        "To_Be_Used_Later": output_folder / "To_Be_Used_Later",
+        group_name(index): output_folder / group_name(index)
+        for index in range(group_count)
     }
-    _copy_group_videos(input_folder, group_a, group_folders["Group_A"])
-    _copy_group_videos(input_folder, group_b, group_folders["Group_B"])
-    _copy_group_videos(input_folder, later, group_folders["To_Be_Used_Later"])
 
     export_jobs = []
-    for group_name, group_rows in (("Group_A", group_a), ("Group_B", group_b)):
+    for group_rows in groups:
         for row in group_rows:
             for ratio_key in ratio_keys:
-                export_jobs.append((group_name, str(row["file"]), ratio_key))
+                export_jobs.append((str(row["group"]), str(row["file"]), str(row["export_file"]), ratio_key))
 
     total_steps += len(export_jobs)
     if progress:
         progress(done_steps, total_steps)
 
-    for group_name, filename, ratio_key in export_jobs:
+    for group_name_value, filename, export_file, ratio_key in export_jobs:
         if _cancelled(cancel_event):
             raise ProcessingCancelled()
 
         source = input_folder / filename
-        ratio_folder = group_folders[group_name] / ASPECT_RATIOS[ratio_key].folder_name
-        destination = ratio_folder / f"{source.stem}_{ASPECT_RATIOS[ratio_key].folder_name}.mp4"
+        ratio_folder = group_folders[group_name_value] / ASPECT_RATIOS[ratio_key].folder_name
+        destination = ratio_folder / export_file
         try:
             export_video(
                 source,
