@@ -19,6 +19,10 @@ class ProcessingCancelled(Exception):
     pass
 
 
+class PipelineError(RuntimeError):
+    """A user-actionable batch failure that should not show a traceback."""
+
+
 def _cancelled(cancel_event: threading.Event | None) -> bool:
     return bool(cancel_event and cancel_event.is_set())
 
@@ -123,7 +127,19 @@ def run_pipeline(
     scored_rows = [row for row in rows if not row.get("error")]
     error_rows = [row for row in rows if row.get("error")]
     if not scored_rows:
-        raise RuntimeError("No videos could be scored.")
+        _write_report(output_folder / "ad_scores.csv", error_rows)
+        if result:
+            for row in error_rows:
+                result(row)
+        details = "; ".join(
+            f"{row.get('file', 'video')}: {row.get('error', 'unknown error')}"
+            for row in error_rows[:3]
+        )
+        raise PipelineError(
+            "None of the selected videos could be scored. "
+            "Check the Run Log and Meta_Ad_Output/ad_scores.csv for the recorded error. "
+            f"Details: {details}"
+        )
 
     groups, later = distribute_videos(scored_rows, group_count=group_count, videos_per_group=videos_per_group)
     selected_rows = [row for group_rows in groups for row in group_rows]

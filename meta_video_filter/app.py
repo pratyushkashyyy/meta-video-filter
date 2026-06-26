@@ -49,9 +49,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .config import DEFAULT_RATIOS
+from .config import DEFAULT_RATIOS, VIDEO_EXTENSIONS
 from .distribution import MAX_GROUP_COUNT, MAX_VIDEOS_PER_GROUP, MIN_GROUP_COUNT, MIN_VIDEOS_PER_GROUP
-from .pipeline import ProcessingCancelled, run_pipeline
+from .pipeline import PipelineError, ProcessingCancelled, run_pipeline
+from .scoring import iter_video_files
 
 
 APP_ICON_PATH = Path(__file__).with_name("assets") / "app_icon.png"
@@ -448,8 +449,11 @@ class PipelineWorker(QObject):
             )
         except ProcessingCancelled:
             self.log.emit("Cancelled.")
+        except PipelineError as exc:
+            self.failed.emit(str(exc))
         except Exception:
-            self.failed.emit(traceback.format_exc())
+            self.log.emit(traceback.format_exc())
+            self.failed.emit("The batch stopped unexpectedly. Check the Run Log for technical details.")
         finally:
             self.finished.emit()
 
@@ -856,7 +860,13 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def choose_input(self) -> None:
-        folder = QFileDialog.getExistingDirectory(self, "Select input video folder")
+        options = QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog
+        folder = QFileDialog.getExistingDirectory(
+            self,
+            "Select input video folder",
+            str(Path.home()),
+            options,
+        )
         if folder:
             self.input_edit.setText(folder)
             self.input_edit.setCursorPosition(0)
@@ -874,6 +884,28 @@ class MainWindow(QMainWindow):
         if not input_folder:
             QMessageBox.warning(self, "Missing folder", "Select an input folder.")
             return
+        input_path = Path(input_folder).expanduser()
+        if not input_path.is_dir():
+            QMessageBox.warning(self, "Invalid folder", "Choose an existing folder that contains your source videos.")
+            return
+        try:
+            source_files = iter_video_files(input_path, VIDEO_EXTENSIONS)
+        except OSError as exc:
+            QMessageBox.warning(
+                self,
+                "Folder unavailable",
+                f"Meta Video Filter cannot read this folder. Choose a different folder or grant macOS access.\n\n{exc}",
+            )
+            return
+        if not source_files:
+            supported = ", ".join(extension.upper() for extension in VIDEO_EXTENSIONS)
+            QMessageBox.warning(
+                self,
+                "No videos found",
+                f"Choose a folder containing supported video files: {supported}.",
+            )
+            return
+        input_folder = str(input_path)
         self.result_count = 0
         self.selected_count = 0
         self.top_score_value = None
