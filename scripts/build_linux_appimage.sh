@@ -36,6 +36,7 @@ if [[ "$PYTHON_VERSION" != "3.10" ]]; then
 fi
 
 "$VENV_PYTHON" -m pip install --upgrade pip setuptools wheel
+"$VENV_PYTHON" -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 "$VENV_PYTHON" -m pip install -r requirements-dev.txt
 "$VENV_PYTHON" -m pytest -q
 
@@ -82,4 +83,9 @@ cp "$APPDIR/$APP_ID.desktop" "$APPDIR/usr/share/applications/$APP_ID.desktop"
 
 ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$APPIMAGETOOL_BIN" "$APPDIR" "$OUTPUT"
 chmod +x "$OUTPUT"
+APPIMAGE_SIZE="$(stat -c %s "$OUTPUT")"
+if (( APPIMAGE_SIZE >= 2147483648 )); then
+    echo "The AppImage is larger than GitHub Releases' 2 GB asset limit." >&2
+    exit 1
+fi
 echo "Linux AppImage created: $OUTPUT"

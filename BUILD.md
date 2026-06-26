@@ -146,7 +146,8 @@ chmod +x MetaVideoFilter-linux-x86_64.AppImage
 
 The AppImage bundles the Python runtime, FFmpeg, and YOLO model. It targets
 x86_64 Linux. For older Linux distributions, build on the oldest supported
-distribution to maximize compatibility.
+distribution to maximize compatibility. It uses CPU-only PyTorch to stay
+portable and within GitHub's release-asset size limit.
 
 ## 6. Linux Bootstrap Installer
 

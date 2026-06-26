@@ -163,6 +163,7 @@ tail -n +"$ARCHIVE_LINE" "$0" | tar -xz -C "$INSTALL_DIR"
 }
 
 "$VENV_DIR/bin/python" -m pip install --upgrade pip setuptools wheel
+"$VENV_DIR/bin/python" -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 "$VENV_DIR/bin/python" -m pip install -r "$SOURCE_DIR/requirements.txt"
 "$VENV_DIR/bin/python" "$SOURCE_DIR/scripts/prepare_yolo_model.py" --output "$SOURCE_DIR/meta_video_filter/assets/models/yolov8n.pt"
 "$VENV_DIR/bin/python" -m pip install --no-deps "$SOURCE_DIR"
