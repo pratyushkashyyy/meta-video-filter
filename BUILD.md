@@ -1,6 +1,6 @@
 # Production Build
 
-Build on the same OS you want to ship. Use Windows to create a Windows app and Linux to create a Linux app.
+Build on the same OS you want to ship. Use Windows to create a Windows app, Linux to create a Linux installer, and macOS to create a macOS app and disk image.
 
 ## 1. Prepare
 
@@ -163,9 +163,39 @@ Uninstall:
 ./release/MetaVideoFilter-linux-x86_64.run --uninstall
 ```
 
+## 6. macOS App and DMG
+
+Build on a Mac with Xcode Command Line Tools installed:
+
+```bash
+xcode-select --install
+./scripts/build_macos_installer.sh --arch arm64
+```
+
+For an Intel Mac, use `--arch x86_64`. The build creates a self-contained app
+bundle and a drag-and-drop disk image:
+
+```text
+dist/Meta Video Filter.app
+release/MetaVideoFilter-macos-arm64.dmg
+```
+
+The app bundles FFmpeg through `imageio-ffmpeg`, so customers do not need
+Homebrew, Python, or FFmpeg installed. Build a separate DMG for Apple Silicon
+and Intel unless you have a universal2 Python environment and dependencies.
+
+For a distributable release outside your own team, sign and notarize it:
+
+```bash
+./scripts/build_macos_installer.sh \
+  --arch arm64 \
+  --codesign-identity "Developer ID Application: Your Name (TEAMID)" \
+  --notary-profile "meta-video-filter-notary"
+```
+
 ## Notes
 
-- The app uses `ffmpeg` for audio analysis and exports. The Linux installer installs Python dependencies at install time instead of bundling them, so the release stays small.
+- The app uses `ffmpeg` for audio analysis and exports. Desktop builds include a platform-specific FFmpeg binary through `imageio-ffmpeg`; the Linux installer installs Python dependencies at install time instead of bundling them, so the release stays small.
 - YOLO may download `yolov8n.pt` the first time it runs if the model file is not already present.
 - PyInstaller builds can be large because Ultralytics depends on PyTorch. Prefer the lightweight Linux installer unless you specifically need offline installation.
 - Ultralytics is AGPL-3.0 licensed. Review license obligations before distributing outside your own machine or organization.

@@ -111,3 +111,11 @@ Linux installer support:
 ./scripts/build_linux_installer.sh
 ./release/MetaVideoFilter-linux-x86_64.run
 ```
+
+macOS builds produce a native `.app` and `.dmg` from a Mac:
+
+```bash
+./scripts/build_macos_installer.sh --arch arm64
+```
+
+See [BUILD.md](BUILD.md) for Windows, Linux, macOS signing, and notarization details.

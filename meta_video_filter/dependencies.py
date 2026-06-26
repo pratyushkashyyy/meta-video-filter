@@ -23,4 +23,15 @@ def find_bundled_or_path_executable(*names: str) -> str | None:
         if path:
             return path
 
+    # imageio-ffmpeg ships a platform-specific FFmpeg executable. Keeping this
+    # as a final fallback makes the frozen app self-contained on every desktop OS.
+    try:
+        import imageio_ffmpeg
+
+        executable = Path(imageio_ffmpeg.get_ffmpeg_exe())
+        if executable.exists():
+            return str(executable)
+    except (ImportError, OSError, RuntimeError):
+        pass
+
     return None

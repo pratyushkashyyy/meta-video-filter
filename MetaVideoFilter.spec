@@ -1,5 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
+import sys
+
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 block_cipher = None
@@ -10,10 +13,20 @@ hiddenimports += collect_submodules("ultralytics")
 
 datas = []
 datas += collect_data_files("ultralytics")
+datas += collect_data_files("imageio_ffmpeg")
 datas += [
     ("meta_video_filter/assets/app_icon.png", "meta_video_filter/assets"),
     ("meta_video_filter/assets/app_icon.ico", "meta_video_filter/assets"),
 ]
+
+if sys.platform == "darwin":
+    icon_file = os.environ.get("METAVIDEOFILTER_MAC_ICON")
+    if not icon_file:
+        raise RuntimeError(
+            "Set METAVIDEOFILTER_MAC_ICON to an .icns file when building on macOS."
+        )
+else:
+    icon_file = "meta_video_filter/assets/app_icon.ico"
 
 a = Analysis(
     ["build_entry.py"],
@@ -44,10 +57,10 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,
-    icon="meta_video_filter/assets/app_icon.ico",
+    icon=icon_file,
     disable_windowed_traceback=False,
     argv_emulation=False,
-    target_arch=None,
+    target_arch=os.environ.get("PYINSTALLER_TARGET_ARCH") or None,
     codesign_identity=None,
     entitlements_file=None,
 )
@@ -62,3 +75,19 @@ coll = COLLECT(
     upx_exclude=[],
     name="MetaVideoFilter",
 )
+
+if sys.platform == "darwin":
+    app = BUNDLE(
+        coll,
+        name="Meta Video Filter.app",
+        icon=icon_file,
+        bundle_identifier="com.metavideofilter.app",
+        info_plist={
+            "CFBundleDisplayName": "Meta Video Filter",
+            "CFBundleName": "Meta Video Filter",
+            "CFBundleShortVersionString": "0.1.0",
+            "CFBundleVersion": "0.1.0",
+            "LSMinimumSystemVersion": "12.0",
+            "NSHighResolutionCapable": True,
+        },
+    )
