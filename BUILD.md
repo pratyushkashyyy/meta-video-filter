@@ -229,5 +229,6 @@ For a distributable release outside your own team, sign and notarize it:
 - The app uses `ffmpeg` for audio analysis and exports. Desktop builds include a platform-specific FFmpeg binary through `imageio-ffmpeg`; the Linux installer installs Python dependencies at install time instead of bundling them, so the release stays small.
 - Release builders download and embed `yolov8n.pt` during the build. Installed Windows, Linux, and macOS apps do not download the person-detection model on first run.
 - GitHub Actions can build the Linux AppImage and Windows Setup EXE on their native operating systems. Run **Build Release Installers** manually and provide an existing release tag, or push a new version tag.
+- GitHub Actions can build an Apple Silicon DMG with **Build macOS Release** on the `macos-14` ARM runner. It is ad-hoc signed; notarized public releases require Apple Developer signing and notarization credentials.
 - PyInstaller builds can be large because Ultralytics depends on PyTorch. Prefer the lightweight Linux installer unless you specifically need offline installation.
 - Ultralytics is AGPL-3.0 licensed. Review license obligations before distributing outside your own machine or organization.

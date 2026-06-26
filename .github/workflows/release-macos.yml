@@ -1,0 +1,36 @@
+name: Build macOS Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: GitHub Release tag to receive the Apple Silicon DMG
+        required: true
+        default: v0.1.0-python310
+
+permissions:
+  contents: write
+
+jobs:
+  macos-dmg:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Ensure release exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --title "Meta Video Filter $RELEASE_TAG" --generate-notes
+          fi
+      - name: Build Apple Silicon DMG
+        run: ./scripts/build_macos_installer.sh --arch arm64
+      - name: Upload DMG to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: gh release upload "$RELEASE_TAG" release/MetaVideoFilter-macos-arm64.dmg --clobber
