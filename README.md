@@ -112,6 +112,12 @@ Linux installer support:
 ./release/MetaVideoFilter-linux-x86_64.run
 ```
 
+For a standalone Linux app with no Python setup, build an AppImage:
+
+```bash
+./scripts/build_linux_appimage.sh
+```
+
 macOS builds produce a native `.app` and `.dmg` from a Mac:
 
 ```bash

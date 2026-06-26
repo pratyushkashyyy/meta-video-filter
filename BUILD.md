@@ -123,7 +123,32 @@ If you already have a `venv` from another Python version, delete it first:
 Remove-Item -Recurse -Force .\venv
 ```
 
-## 5. Linux Installer
+## 5. Linux AppImage
+
+Build a standalone Linux application, equivalent in spirit to the macOS DMG:
+
+```bash
+./scripts/build_linux_appimage.sh
+```
+
+This creates:
+
+```text
+release/MetaVideoFilter-linux-x86_64.AppImage
+```
+
+Users run it without installing Python, FFmpeg, or project dependencies:
+
+```bash
+chmod +x MetaVideoFilter-linux-x86_64.AppImage
+./MetaVideoFilter-linux-x86_64.AppImage
+```
+
+The AppImage bundles the Python runtime, FFmpeg, and YOLO model. It targets
+x86_64 Linux. For older Linux distributions, build on the oldest supported
+distribution to maximize compatibility.
+
+## 6. Linux Bootstrap Installer
 
 Build the lightweight Linux installer:
 
@@ -165,7 +190,7 @@ Uninstall:
 ./release/MetaVideoFilter-linux-x86_64.run --uninstall
 ```
 
-## 6. macOS App and DMG
+## 7. macOS App and DMG
 
 Build on a Mac with Xcode Command Line Tools installed:
 
@@ -202,5 +227,6 @@ For a distributable release outside your own team, sign and notarize it:
 
 - The app uses `ffmpeg` for audio analysis and exports. Desktop builds include a platform-specific FFmpeg binary through `imageio-ffmpeg`; the Linux installer installs Python dependencies at install time instead of bundling them, so the release stays small.
 - Release builders download and embed `yolov8n.pt` during the build. Installed Windows, Linux, and macOS apps do not download the person-detection model on first run.
+- GitHub Actions can build the Linux AppImage and Windows Setup EXE on their native operating systems. Run **Build Release Installers** manually and provide an existing release tag, or push a new version tag.
 - PyInstaller builds can be large because Ultralytics depends on PyTorch. Prefer the lightweight Linux installer unless you specifically need offline installation.
 - Ultralytics is AGPL-3.0 licensed. Review license obligations before distributing outside your own machine or organization.
