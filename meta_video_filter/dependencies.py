@@ -4,6 +4,11 @@ import shutil
 import sys
 from pathlib import Path
 
+try:
+    import imageio_ffmpeg
+except ImportError:
+    imageio_ffmpeg = None
+
 
 def find_bundled_or_path_executable(*names: str) -> str | None:
     """Find a command on PATH or beside the frozen/source executable."""
@@ -25,13 +30,12 @@ def find_bundled_or_path_executable(*names: str) -> str | None:
 
     # imageio-ffmpeg ships a platform-specific FFmpeg executable. Keeping this
     # as a final fallback makes the frozen app self-contained on every desktop OS.
-    try:
-        import imageio_ffmpeg
-
-        executable = Path(imageio_ffmpeg.get_ffmpeg_exe())
-        if executable.exists():
-            return str(executable)
-    except (ImportError, OSError, RuntimeError):
-        pass
+    if imageio_ffmpeg is not None:
+        try:
+            executable = Path(imageio_ffmpeg.get_ffmpeg_exe())
+            if executable.exists():
+                return str(executable)
+        except (OSError, RuntimeError):
+            pass
 
     return None

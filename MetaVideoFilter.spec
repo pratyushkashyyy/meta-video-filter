@@ -10,6 +10,7 @@ block_cipher = None
 hiddenimports = []
 hiddenimports += ["backports", "backports.tarfile"]
 hiddenimports += collect_submodules("ultralytics")
+hiddenimports += collect_submodules("imageio_ffmpeg")
 
 datas = []
 datas += collect_data_files("ultralytics")

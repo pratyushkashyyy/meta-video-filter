@@ -112,6 +112,10 @@ if [[ ! -d "$APP_BUNDLE" ]]; then
     echo "Expected macOS app bundle was not created: $APP_BUNDLE" >&2
     exit 1
 fi
+if ! find "$APP_BUNDLE" -type f -path "*imageio_ffmpeg*/binaries/ffmpeg-*" -print -quit | grep -q .; then
+    echo "The bundled FFmpeg binary is missing from the macOS app. Aborting release build." >&2
+    exit 1
+fi
 
 if [[ -n "$CODESIGN_IDENTITY" ]]; then
     codesign --force --deep --options runtime --sign "$CODESIGN_IDENTITY" "$APP_BUNDLE"
