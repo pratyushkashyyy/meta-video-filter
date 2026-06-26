@@ -19,6 +19,13 @@ datas += [
     ("meta_video_filter/assets/app_icon.ico", "meta_video_filter/assets"),
 ]
 
+yolo_model = os.environ.get("META_VIDEO_FILTER_YOLO_MODEL")
+if not yolo_model or not os.path.isfile(yolo_model):
+    raise RuntimeError(
+        "Set META_VIDEO_FILTER_YOLO_MODEL to the prepared yolov8n.pt file before building a release."
+    )
+datas.append((yolo_model, "meta_video_filter/assets/models"))
+
 if sys.platform == "darwin":
     icon_file = os.environ.get("METAVIDEOFILTER_MAC_ICON")
     if not icon_file:

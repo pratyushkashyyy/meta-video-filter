@@ -34,7 +34,9 @@ python -m meta_video_filter
 ## 3. Build
 
 ```bash
-pyinstaller MetaVideoFilter.spec --clean --noconfirm
+python scripts/prepare_yolo_model.py --output build/release-assets/yolov8n.pt
+META_VIDEO_FILTER_YOLO_MODEL="$PWD/build/release-assets/yolov8n.pt" \
+  pyinstaller MetaVideoFilter.spec --clean --noconfirm
 ```
 
 The app folder will be written to:
@@ -183,6 +185,8 @@ release/MetaVideoFilter-macos-arm64.dmg
 The app bundles FFmpeg through `imageio-ffmpeg`, so customers do not need
 Homebrew, Python, or FFmpeg installed. Build a separate DMG for Apple Silicon
 and Intel unless you have a universal2 Python environment and dependencies.
+The YOLO person-detection model is downloaded and embedded while building, so
+the installed app does not need to download it on first launch.
 
 For a distributable release outside your own team, sign and notarize it:
 
@@ -196,6 +200,6 @@ For a distributable release outside your own team, sign and notarize it:
 ## Notes
 
 - The app uses `ffmpeg` for audio analysis and exports. Desktop builds include a platform-specific FFmpeg binary through `imageio-ffmpeg`; the Linux installer installs Python dependencies at install time instead of bundling them, so the release stays small.
-- YOLO may download `yolov8n.pt` the first time it runs if the model file is not already present.
+- Release builders download and embed `yolov8n.pt` during the build. Installed Windows, Linux, and macOS apps do not download the person-detection model on first run.
 - PyInstaller builds can be large because Ultralytics depends on PyTorch. Prefer the lightweight Linux installer unless you specifically need offline installation.
 - Ultralytics is AGPL-3.0 licensed. Review license obligations before distributing outside your own machine or organization.

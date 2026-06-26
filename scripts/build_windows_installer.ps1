@@ -84,6 +84,11 @@ if ($PythonVersion -ne "3.10") {
 Invoke-Native $VenvPython @("-m", "pip", "install", "-U", "pip", "setuptools", "wheel")
 Invoke-Native $VenvPython @("-m", "pip", "install", "-r", "requirements-dev.txt")
 Invoke-Native $VenvPython @("-m", "pytest", "-q")
+$YoloModel = (& $VenvPython "scripts\prepare_yolo_model.py" "--output" "build\release-assets\yolov8n.pt").Trim()
+if (-not (Test-Path $YoloModel)) {
+    throw "The YOLO model could not be prepared for the release build."
+}
+$env:META_VIDEO_FILTER_YOLO_MODEL = (Resolve-Path $YoloModel).Path
 Invoke-Native ".\venv\Scripts\pyinstaller.exe" @("MetaVideoFilter.spec", "--clean", "--noconfirm")
 
 if (-not (Test-Path $InnoSetupCompiler)) {

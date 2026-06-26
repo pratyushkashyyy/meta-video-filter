@@ -82,6 +82,7 @@ fi
 
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR/icon.iconset" "$RELEASE_DIR"
+export META_VIDEO_FILTER_YOLO_MODEL="$("$VENV_PYTHON" scripts/prepare_yolo_model.py --output "$BUILD_DIR/yolov8n.pt")"
 
 create_icon() {
     local size="$1"

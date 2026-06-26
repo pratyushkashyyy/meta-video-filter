@@ -11,6 +11,14 @@ import numpy as np
 
 from .dependencies import find_bundled_or_path_executable
 
+
+def bundled_yolo_model_path() -> str:
+    """Use the model included with installers; source runs retain Ultralytics' fallback."""
+    model_path = Path(__file__).with_name("assets") / "models" / "yolov8n.pt"
+    if model_path.exists():
+        return str(model_path)
+    return "yolov8n.pt"
+
 ProgressCallback = Callable[[str], None]
 CancelCallback = Callable[[], bool]
 
@@ -39,8 +47,8 @@ class ScoreResult:
 class PersonDetector:
     """Lazy YOLO wrapper so the model is loaded only when work starts."""
 
-    def __init__(self, model_path: str = "yolov8n.pt", device: str = "auto") -> None:
-        self.model_path = model_path
+    def __init__(self, model_path: str | None = None, device: str = "auto") -> None:
+        self.model_path = model_path or bundled_yolo_model_path()
         self.device = device
         self._model = None
         self._resolved_device = None
