@@ -183,8 +183,9 @@ release/MetaVideoFilter-macos-arm64.dmg
 ```
 
 The app bundles FFmpeg through `imageio-ffmpeg`, so customers do not need
-Homebrew, Python, or FFmpeg installed. Build a separate DMG for Apple Silicon
-and Intel unless you have a universal2 Python environment and dependencies.
+Homebrew, Python, or FFmpeg installed. The pinned version includes a native
+Apple Silicon FFmpeg binary. Build a separate DMG for Apple Silicon and Intel
+unless you have a universal2 Python environment and dependencies.
 The YOLO person-detection model is downloaded and embedded while building, so
 the installed app does not need to download it on first launch.
 
